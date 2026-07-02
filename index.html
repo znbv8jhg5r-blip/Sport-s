@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programme — 5 jours</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#101113;
+  --bg-soft:#17181b;
+  --card:#1b1c20;
+  --card-hi:#212226;
+  --line:rgba(255,255,255,0.09);
+  --text:#f4f4f2;
+  --dim:#8d8f96;
+  --dim-soft:#5c5e64;
+  --lime:#c8ff3d;
+  --lime-dim:rgba(200,255,61,0.12);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter', Arial, sans-serif;
+  padding-bottom:70px;
+  -webkit-font-smoothing:antialiased;
+}
+.sg{ font-family:'Space Grotesk', sans-serif; }
+.mono{ font-family:'IBM Plex Mono', monospace; }
+
+/* ===================== HEADER ===================== */
+header{
+  max-width:760px;
+  margin:0 auto;
+  padding:56px 22px 30px;
+  display:flex;
+  gap:36px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:space-between;
+}
+.header-text{ flex:1 1 320px; min-width:260px; }
+.kicker{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--lime);
+  margin-bottom:16px;
+}
+h1{
+  font-family:'Space Grotesk', sans-serif;
+  font-weight:700;
+  font-size:clamp(28px,4.4vw,38px);
+  line-height:1.08;
+  letter-spacing:-0.01em;
+}
+header p.sub{
+  color:var(--dim);
+  font-size:14px;
+  margin-top:14px;
+  max-width:380px;
+  line-height:1.55;
+}
+
+/* stat mini row under title */
+.stat-row{
+  display:flex;
+  gap:22px;
+  margin-top:26px;
+  flex-wrap:wrap;
+}
+.stat-row .stat .v{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; }
+.stat-row .stat .k{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--dim-soft); text-transform:uppercase; letter-spacing:0.08em; margin-top:2px; }
+
+/* weekly ring — signature element */
+.ring-block{
+  flex:0 0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+.ring-wrap{ position:relative; width:128px; height:128px; }
+.ring-wrap svg{ transform:rotate(-90deg); }
+.ring-track{ fill:none; stroke:var(--line); stroke-width:8; }
+.ring-fill{ fill:none; stroke:var(--lime); stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset .4s ease; }
+.ring-center{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.ring-center .n{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:26px; }
+.ring-center .d{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--dim); margin-top:1px; }
+.ring-label{ font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--dim-soft); }
+
+/* ===================== TAB SWITCHER ===================== */
+.tabs-outer{
+  max-width:760px;
+  margin:8px auto 34px;
+  padding:0 22px;
+}
+.tabs{
+  position:relative;
+  display:flex;
+  background:var(--bg-soft);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:5px;
+  gap:2px;
+}
+.tab-indicator{
+  position:absolute;
+  top:5px; left:5px;
+  height:calc(100% - 10px);
+  background:var(--lime);
+  border-radius:10px;
+  transition:transform .3s cubic-bezier(.4,0,.2,1), width .3s cubic-bezier(.4,0,.2,1);
+  z-index:0;
+}
+.tab-btn{
+  position:relative;
+  z-index:1;
+  flex:1;
+  font-family:'Space Grotesk', sans-serif;
+  font-weight:600;
+  font-size:12.5px;
+  color:var(--dim);
+  background:transparent;
+  border:none;
+  padding:11px 6px;
+  cursor:pointer;
+  border-radius:10px;
+  transition:color .25s ease;
+  white-space:nowrap;
+}
+.tab-btn.active{ color:#0f1012; }
+
+/* ===================== CONTENT ===================== */
+.content{ max-width:760px; margin:0 auto; padding:0 22px; }
+.panel{ display:none; }
+.panel.active{ display:block; animation:rise .3s ease; }
+@keyframes rise{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:translateY(0);} }
+
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+  gap:12px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:18px;
+}
+.panel-head h2{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:23px; }
+.panel-head .muscles{ font-family:'IBM Plex Mono', monospace; color:var(--dim); font-size:12px; margin-top:5px; }
+.day-progress{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--dim); text-align:right; }
+.day-progress .bar{ width:110px; height:4px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:6px; }
+.day-progress .fill{ height:100%; width:0%; background:var(--lime); transition:width .3s ease; }
+
+.exercise{
+  position:relative;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:17px 18px 17px 54px;
+  margin-bottom:11px;
+  transition:background .2s ease, border-color .2s ease, opacity .2s ease;
+}
+.exercise:hover{ border-color:rgba(255,255,255,0.16); }
+.exercise.done{ background:var(--lime-dim); border-color:rgba(200,255,61,0.25); }
+.exercise.done .ex-name{ color:var(--dim); text-decoration:line-through; text-decoration-color:var(--dim-soft); }
+.exercise.done .idx{ background:var(--lime); color:#0f1012; }
+
+.idx{
+  position:absolute;
+  left:17px; top:17px;
+  width:26px; height:26px;
+  border-radius:8px;
+  background:var(--card-hi);
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  color:var(--dim);
+  transition:all .2s ease;
+}
+
+.checkbox{
+  position:absolute;
+  right:16px; top:16px;
+  width:24px; height:24px;
+  border:2px solid var(--dim-soft);
+  border-radius:7px;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.checkbox.checked{ background:var(--lime); border-color:var(--lime); }
+.checkbox.checked::after{
+  content:"";
+  position:absolute;
+  left:7px; top:3px;
+  width:5px; height:11px;
+  border-right:2px solid #0f1012;
+  border-bottom:2px solid #0f1012;
+  transform:rotate(40deg);
+}
+
+.ex-top{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; padding-right:32px; }
+.ex-name{ font-weight:600; font-size:15px; }
+.ex-stats{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--lime); white-space:nowrap; }
+.ex-desc{ font-size:12.5px; color:var(--dim); margin-top:6px; line-height:1.55; }
+.ex-desc b{ color:var(--text); font-weight:600; }
+
+/* rest */
+.rest-note{
+  text-align:center;
+  padding:50px 20px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+}
+.rest-note strong{ display:block; font-family:'Space Grotesk',sans-serif; font-size:20px; margin-bottom:8px; }
+.rest-note p{ color:var(--dim); font-size:13px; max-width:340px; margin:0 auto; line-height:1.6; }
+
+/* ===================== NOTES ===================== */
+.notes{ max-width:760px; margin:44px auto 0; padding:0 22px; }
+.notes-label{
+  font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--lime); margin-bottom:16px;
+}
+.notes-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.note-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:17px 19px; }
+.note-card .n-title{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:13.5px; margin-bottom:7px; }
+.note-card p{ font-size:12.5px; color:var(--dim); line-height:1.55; }
+.note-card .lime-text{ color:var(--lime); font-weight:600; }
+
+@media (max-width:600px){
+  header{ flex-direction:column; align-items:flex-start; gap:22px; }
+  .ring-block{ align-self:center; }
+  .notes-grid{ grid-template-columns:1fr; }
+  .tab-btn{ font-size:11px; padding:10px 4px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-text">
+    <div class="kicker">Programme personnel · 5 jours</div>
+    <h1 class="sg">Construis ton physique, un jour à la fois.</h1>
+    <p class="sub">Split ciblé sur la semaine, week-end de récupération complète. Coche chaque exercice pour suivre ta séance.</p>
+    <div class="stat-row">
+      <div class="stat"><div class="v sg">170 cm</div><div class="k">Taille</div></div>
+      <div class="stat"><div class="v sg">54 kg</div><div class="k">Poids</div></div>
+      <div class="stat"><div class="v sg">2700–2900</div><div class="k">Kcal / jour</div></div>
+      <div class="stat"><div class="v sg">130–150 g</div><div class="k">Protéines</div></div>
+    </div>
+  </div>
+
+  <div class="ring-block">
+    <div class="ring-wrap">
+      <svg width="128" height="128" viewBox="0 0 128 128">
+        <circle class="ring-track" cx="64" cy="64" r="56"></circle>
+        <circle class="ring-fill" id="ringFill" cx="64" cy="64" r="56" stroke-dasharray="352" stroke-dashoffset="352"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="n sg" id="ringCount">0/35</div>
+        <div class="d">validés</div>
+      </div>
+    </div>
+    <div class="ring-label">Progression semaine</div>
+  </div>
+</header>
+
+<div class="tabs-outer">
+  <div class="tabs" id="tabs">
+    <div class="tab-indicator" id="tabIndicator"></div>
+    <button class="tab-btn active" data-target="j1" onclick="showDay('j1', this)">Lun</button>
+    <button class="tab-btn" data-target="j2" onclick="showDay('j2', this)">Mar</button>
+    <button class="tab-btn" data-target="j3" onclick="showDay('j3', this)">Mer</button>
+    <button class="tab-btn" data-target="j4" onclick="showDay('j4', this)">Jeu</button>
+    <button class="tab-btn" data-target="j5" onclick="showDay('j5', this)">Ven</button>
+    <button class="tab-btn" data-target="rest" onclick="showDay('rest', this)">W-E</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- LUNDI -->
+  <div class="panel active" id="j1">
+    <div class="panel-head">
+      <div><h2 class="sg">Pectoraux, Triceps, Abdos</h2><div class="muscles">7 exercices</div></div>
+      <div class="day-progress">0/7 validés<div class="bar"><div class="fill"></div></div></div>
+    </div>
+
+    <div class="exercise" data-day="j1"><div class="idx mono">01</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Développé couché barre</span><span class="ex-stats">4 × 6–8</span></div>
+      <div class="ex-desc">Travaille l'ensemble des <b>pectoraux</b>, l'avant d'épaule et le triceps. Barre au niveau du bas des pecs, coudes à ~45° du buste.</div>
+    </div>
+    <div class="exercise" data-day="j1"><div class="idx mono">02</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Développé incliné haltères</span><span class="ex-stats">3 × 10–12</span></div>
+      <div class="ex-desc">Cible le <b>haut des pectoraux</b>. Banc incliné 30–45°, descends jusqu'à l'étirement puis remonte sans cogner les haltères.</div>
+    </div>
+    <div class="exercise" data-day="j1"><div class="idx mono">03</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Écarté poulie vis-à-vis</span><span class="ex-stats">3 × 12–15</span></div>
+      <div class="ex-desc">Isolation des <b>pectoraux</b> en tension constante. Coude légèrement fléchi et fixe, pense à "serrer" plutôt qu'à pousser.</div>
+    </div>
+    <div class="exercise" data-day="j1"><div class="idx mono">04</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Dips (lestés si possible)</span><span class="ex-stats">3 × 8–12</span></div>
+      <div class="ex-desc">Travaille <b>triceps et bas des pectoraux</b>. Buste penché en avant pour plus de pecs, droit pour plus de triceps.</div>
+    </div>
+    <div class="exercise" data-day="j1"><div class="idx mono">05</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Extension triceps poulie</span><span class="ex-stats">3 × 12–15</span></div>
+      <div class="ex-desc">Isolation du <b>triceps</b>. Coudes collés au corps et fixes, contraction en bas de mouvement.</div>
+    </div>
+    <div class="exercise" data-day="j1"><div class="idx mono">06</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Relevé de jambes suspendu</span><span class="ex-stats">3 × 12–15</span></div>
+      <div class="ex-desc">Cible les <b>abdos bas</b>. Remonte les jambes en enroulant le bassin, évite de te balancer.</div>
+    </div>
+    <div class="exercise" data-day="j1"><div class="idx mono">07</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Gainage (planche)</span><span class="ex-stats">3 × 45 s</span></div>
+      <div class="ex-desc">Travaille toute la <b>sangle abdominale</b>. Corps aligné tête-bassin-talons, hanches ni trop hautes ni trop basses.</div>
+    </div>
+  </div>
+
+  <!-- MARDI -->
+  <div class="panel" id="j2">
+    <div class="panel-head">
+      <div><h2 class="sg">Dos, Bras</h2><div class="muscles">7 exercices</div></div>
+      <div class="day-progress">0/7 validés<div class="bar"><div class="fill"></div></div></div>
+    </div>
+
+    <div class="exercise" data-day="j2"><div class="idx mono">01</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Tractions (lestées ou assistées)</span><span class="ex-stats">4 × 6–10</span></div>
+      <div class="ex-desc">Le meilleur exercice pour la <b>largeur du dos</b>. Prise un peu plus large que les épaules, tire les coudes vers le bas et l'arrière.</div>
+    </div>
+    <div class="exercise" data-day="j2"><div class="idx mono">02</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Rowing barre buste penché</span><span class="ex-stats">4 × 8–10</span></div>
+      <div class="ex-desc">Construit l'<b>épaisseur du dos</b>. Dos plat, buste à ~45°, tire la barre vers le nombril en serrant les omoplates.</div>
+    </div>
+    <div class="exercise" data-day="j2"><div class="idx mono">03</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Tirage horizontal poulie</span><span class="ex-stats">3 × 10–12</span></div>
+      <div class="ex-desc">Travaille le <b>milieu du dos</b>. Dos droit, coudes proches du corps en tirant vers le buste.</div>
+    </div>
+    <div class="exercise" data-day="j2"><div class="idx mono">04</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Tirage poulie haute face</span><span class="ex-stats">3 × 12</span></div>
+      <div class="ex-desc">Cible les <b>trapèzes et l'arrière d'épaule</b>. Tire la corde vers le visage, coudes hauts.</div>
+    </div>
+    <div class="exercise" data-day="j2"><div class="idx mono">05</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Curl barre EZ</span><span class="ex-stats">3 × 8–12</span></div>
+      <div class="ex-desc">Mouvement de base pour le <b>biceps</b>. Coudes fixes le long du corps, pas de balancement du buste.</div>
+    </div>
+    <div class="exercise" data-day="j2"><div class="idx mono">06</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Curl marteau haltères</span><span class="ex-stats">3 × 12–15</span></div>
+      <div class="ex-desc">Travaille le <b>biceps et l'avant-bras</b>. Prise neutre, poignet aligné avec l'avant-bras.</div>
+    </div>
+    <div class="exercise" data-day="j2"><div class="idx mono">07</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Curl pupitre (banc Scott)</span><span class="ex-stats">3 × 10–12</span></div>
+      <div class="ex-desc">Isole le <b>biceps</b> sans triche possible. Contrôle bien la descente jusqu'à extension quasi complète.</div>
+    </div>
+  </div>
+
+  <!-- MERCREDI -->
+  <div class="panel" id="j3">
+    <div class="panel-head">
+      <div><h2 class="sg">Abdos, Bas du corps</h2><div class="muscles">7 exercices</div></div>
+      <div class="day-progress">0/7 validés<div class="bar"><div class="fill"></div></div></div>
+    </div>
+
+    <div class="exercise" data-day="j3"><div class="idx mono">01</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Squat barre</span><span class="ex-stats">4 × 6–8</span></div>
+      <div class="ex-desc">Mouvement de base pour <b>quadriceps, fessiers et ischios</b>. Descends jusqu'à cuisses parallèles au sol, genoux dans l'axe des pieds.</div>
+    </div>
+    <div class="exercise" data-day="j3"><div class="idx mono">02</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Presse à cuisses</span><span class="ex-stats">4 × 10–12</span></div>
+      <div class="ex-desc">Complète le squat sur <b>quadriceps et fessiers</b> avec moins de charge sur le dos. Ne verrouille pas les genoux en haut.</div>
+    </div>
+    <div class="exercise" data-day="j3"><div class="idx mono">03</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Soulevé de terre roumain</span><span class="ex-stats">3 × 8–10</span></div>
+      <div class="ex-desc">Cible <b>ischios et fessiers</b>. Jambes quasi tendues, dos plat, sens l'étirement à l'arrière des cuisses.</div>
+    </div>
+    <div class="exercise" data-day="j3"><div class="idx mono">04</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Mollets debout</span><span class="ex-stats">4 × 15–20</span></div>
+      <div class="ex-desc">Isole les <b>mollets</b>. Amplitude complète, descends en étirement puis monte sur la pointe des pieds.</div>
+    </div>
+    <div class="exercise" data-day="j3"><div class="idx mono">05</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Crunch câble à genoux</span><span class="ex-stats">3 × 15</span></div>
+      <div class="ex-desc">Cible les <b>abdos hauts</b> avec charge additionnelle. Enroule le buste vers le bassin en expirant.</div>
+    </div>
+    <div class="exercise" data-day="j3"><div class="idx mono">06</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Relevé de bassin au sol</span><span class="ex-stats">3 × 15–20</span></div>
+      <div class="ex-desc">Cible les <b>abdos bas</b>. Jambes tendues vers le plafond, décolle le bassin sans élan.</div>
+    </div>
+    <div class="exercise" data-day="j3"><div class="idx mono">07</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Gainage latéral</span><span class="ex-stats">3 × 30–40 s/côté</span></div>
+      <div class="ex-desc">Travaille les <b>obliques</b>. Appui sur l'avant-bras, corps aligné, hanche stable.</div>
+    </div>
+  </div>
+
+  <!-- JEUDI -->
+  <div class="panel" id="j4">
+    <div class="panel-head">
+      <div><h2 class="sg">Haut du corps complet</h2><div class="muscles">7 exercices</div></div>
+      <div class="day-progress">0/7 validés<div class="bar"><div class="fill"></div></div></div>
+    </div>
+
+    <div class="exercise" data-day="j4"><div class="idx mono">01</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Développé militaire barre</span><span class="ex-stats">4 × 6–8</span></div>
+      <div class="ex-desc">Mouvement de base pour les <b>épaules</b>. Pousse la barre au-dessus de la tête sans cambrer le bas du dos.</div>
+    </div>
+    <div class="exercise" data-day="j4"><div class="idx mono">02</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Tirage vertical prise serrée</span><span class="ex-stats">4 × 8–10</span></div>
+      <div class="ex-desc">Construit l'<b>épaisseur du dos</b> et sollicite les biceps. Serre les omoplates en tirant.</div>
+    </div>
+    <div class="exercise" data-day="j4"><div class="idx mono">03</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Développé couché haltères</span><span class="ex-stats">3 × 8–10</span></div>
+      <div class="ex-desc">Travaille les <b>pectoraux</b> avec une grande amplitude. Descends jusqu'à l'étirement sans forcer trop bas.</div>
+    </div>
+    <div class="exercise" data-day="j4"><div class="idx mono">04</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Élévations latérales</span><span class="ex-stats">3 × 12–15</span></div>
+      <div class="ex-desc">Isole le <b>deltoïde latéral</b> pour la largeur d'épaules. Monte jusqu'à hauteur d'épaule, pas plus haut.</div>
+    </div>
+    <div class="exercise" data-day="j4"><div class="idx mono">05</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Curl biceps haltères alterné</span><span class="ex-stats">3 × 10–12</span></div>
+      <div class="ex-desc">Cible le <b>biceps</b>. Alterne les bras, évite de balancer les épaules.</div>
+    </div>
+    <div class="exercise" data-day="j4"><div class="idx mono">06</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Extension triceps poulie</span><span class="ex-stats">3 × 12–15</span></div>
+      <div class="ex-desc">Isolation du <b>triceps</b> pour clôturer. Coudes fixes, contraction en bas.</div>
+    </div>
+    <div class="exercise" data-day="j4"><div class="idx mono">07</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Face pull</span><span class="ex-stats">3 × 15</span></div>
+      <div class="ex-desc">Travaille l'<b>arrière d'épaule et haut du dos</b>, utile pour la posture. Tire vers le visage, mains écartées.</div>
+    </div>
+  </div>
+
+  <!-- VENDREDI -->
+  <div class="panel" id="j5">
+    <div class="panel-head">
+      <div><h2 class="sg">Bas du corps, Abdos</h2><div class="muscles">7 exercices</div></div>
+      <div class="day-progress">0/7 validés<div class="bar"><div class="fill"></div></div></div>
+    </div>
+
+    <div class="exercise" data-day="j5"><div class="idx mono">01</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Fentes marchées haltères</span><span class="ex-stats">4 × 10–12/jambe</span></div>
+      <div class="ex-desc">Travaille <b>quadriceps et fessiers</b> en unilatéral. Pas ample, genou arrière proche du sol sans le toucher.</div>
+    </div>
+    <div class="exercise" data-day="j5"><div class="idx mono">02</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Hip thrust barre</span><span class="ex-stats">4 × 10–12</span></div>
+      <div class="ex-desc">Le meilleur exercice pour les <b>fessiers</b>. Pousse le bassin vers le haut, contraction forte en position haute.</div>
+    </div>
+    <div class="exercise" data-day="j5"><div class="idx mono">03</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Leg curl allongé</span><span class="ex-stats">3 × 12–15</span></div>
+      <div class="ex-desc">Isole les <b>ischios</b>. Contrôle la remontée sans balancer le bassin.</div>
+    </div>
+    <div class="exercise" data-day="j5"><div class="idx mono">04</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Leg extension</span><span class="ex-stats">3 × 12–15</span></div>
+      <div class="ex-desc">Isole les <b>quadriceps</b>. Contraction franche en haut, redescends lentement.</div>
+    </div>
+    <div class="exercise" data-day="j5"><div class="idx mono">05</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Mollets assis</span><span class="ex-stats">4 × 15–20</span></div>
+      <div class="ex-desc">Cible le <b>soléaire</b>, complémentaire du mollet debout. Amplitude complète, tempo lent.</div>
+    </div>
+    <div class="exercise" data-day="j5"><div class="idx mono">06</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Relevé de jambes suspendu</span><span class="ex-stats">3 × 12–15</span></div>
+      <div class="ex-desc">Cible les <b>abdos bas</b>. Enroule le bassin en remontant les jambes, sans te balancer.</div>
+    </div>
+    <div class="exercise" data-day="j5"><div class="idx mono">07</div><div class="checkbox" onclick="toggleEx(this)"></div>
+      <div class="ex-top"><span class="ex-name">Gainage (planche)</span><span class="ex-stats">3 × 45–60 s</span></div>
+      <div class="ex-desc">Termine la semaine sur la <b>sangle abdominale</b> complète. Corps aligné, respiration normale.</div>
+    </div>
+  </div>
+
+  <!-- WEEK-END -->
+  <div class="panel" id="rest">
+    <div class="rest-note">
+      <strong class="sg">Repos complet</strong>
+      <p>Aucune séance samedi et dimanche. Marche légère ou étirements possibles, mais rien d'obligatoire — c'est pendant le repos que le muscle se construit.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="notes">
+  <div class="notes-label">Repères pour progresser</div>
+  <div class="notes-grid">
+    <div class="note-card">
+      <div class="n-title">Échauffement</div>
+      <p>5 min de cardio léger puis 1–2 séries légères du premier exercice avant les charges de travail.</p>
+    </div>
+    <div class="note-card">
+      <div class="n-title">Surplus calorique</div>
+      <p>À 54 kg pour 1m70, priorité à l'alimentation : <span class="lime-text">2700–2900 kcal/jour</span> et <span class="lime-text">130–150 g de protéines</span>.</p>
+    </div>
+    <div class="note-card">
+      <div class="n-title">Surcharge progressive</div>
+      <p>Note poids et reps à chaque séance. Augmente la charge dès que tu atteins le haut de la fourchette de reps.</p>
+    </div>
+    <div class="note-card">
+      <div class="n-title">Suivi du poids</div>
+      <p>Pèse-toi à jeun, moyenne sur 7 jours. Vise <span class="lime-text">+0,3 à 0,5 kg</span> par semaine.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function showDay(id, btn){
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  moveIndicator(btn);
+}
+function moveIndicator(btn){
+  const indicator = document.getElementById('tabIndicator');
+  indicator.style.width = btn.offsetWidth + 'px';
+  indicator.style.transform = 'translateX(' + btn.offsetLeft + 'px)';
+}
+window.addEventListener('load', () => {
+  moveIndicator(document.querySelector('.tab-btn.active'));
+});
+window.addEventListener('resize', () => {
+  moveIndicator(document.querySelector('.tab-btn.active'));
+});
+
+const RING_CIRCUMFERENCE = 2 * Math.PI * 56;
+function toggleEx(el){
+  el.classList.toggle('checked');
+  const exercise = el.closest('.exercise');
+  exercise.classList.toggle('done');
+  updateDayProgress(exercise.dataset.day);
+  updateWeekRing();
+}
+function updateDayProgress(dayId){
+  const items = document.querySelectorAll('.exercise[data-day="'+dayId+'"]');
+  const done = document.querySelectorAll('.exercise[data-day="'+dayId+'"].done');
+  const panel = document.getElementById(dayId);
+  const text = panel.querySelector('.day-progress');
+  const fill = panel.querySelector('.fill');
+  text.firstChild.textContent = done.length + '/' + items.length + ' validés';
+  fill.style.width = (done.length / items.length * 100) + '%';
+}
+function updateWeekRing(){
+  const total = document.querySelectorAll('.exercise').length;
+  const done = document.querySelectorAll('.exercise.done').length;
+  document.getElementById('ringCount').textContent = done + '/' + total;
+  const offset = RING_CIRCUMFERENCE - (done / total) * RING_CIRCUMFERENCE;
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+}
+</script>
+
+</body>
+</html>
